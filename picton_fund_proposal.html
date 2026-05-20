@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>85 Picton Avenue — Fund Structure Proposal</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --teal: #0F6E56; --teal-light: #E1F5EE; --teal-dark: #085041;
+    --blue: #185FA5; --blue-light: #E6F1FB; --blue-dark: #0C447C;
+    --amber: #854F0B; --amber-light: #FAEEDA;
+    --coral: #993C1D; --coral-light: #FAECE7;
+    --green: #639922; --green-light: #EAF3DE;
+    --gray: #444441; --gray-light: #F1EFE8;
+    --text: #1a1a18; --text-muted: #5F5E5A; --text-hint: #888780;
+    --border: rgba(0,0,0,0.1); --border-strong: rgba(0,0,0,0.2);
+    --bg: #ffffff; --bg-secondary: #F8F7F4;
+    --radius: 10px; --radius-sm: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Georgia, 'Times New Roman', serif; background: #F5F4F0; color: var(--text); font-size: 14px; line-height: 1.6; }
+  .page { max-width: 820px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+
+  /* Header */
+  .header { background: #1C2B22; color: #fff; border-radius: var(--radius); padding: 2rem 2rem 1.5rem; margin-bottom: 1.5rem; }
+  .header-eyebrow { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; opacity: 0.5; margin-bottom: 0.5rem; }
+  .header h1 { font-size: 26px; font-weight: normal; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+  .header-sub { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; opacity: 0.65; }
+  .header-tags { display: flex; gap: 8px; margin-top: 1.25rem; flex-wrap: wrap; }
+  .htag { background: rgba(255,255,255,0.12); border: 0.5px solid rgba(255,255,255,0.25); border-radius: 4px; padding: 3px 10px; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 11px; }
+
+  /* Sections */
+  .section { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1rem; }
+  .section-title { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-hint); margin-bottom: 1rem; }
+
+  /* Metrics */
+  .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .metric { background: var(--bg-secondary); border-radius: var(--radius-sm); padding: 0.875rem; }
+  .metric-label { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 11px; color: var(--text-hint); margin-bottom: 4px; }
+  .metric-val { font-size: 22px; font-weight: normal; letter-spacing: -0.02em; }
+  .metric-note { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+  /* Rows */
+  .row { display: flex; justify-content: space-between; align-items: baseline; padding: 7px 0; border-bottom: 0.5px solid var(--border); font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; }
+  .row:last-child { border-bottom: none; }
+  .row-label { color: var(--text-muted); }
+  .row-val { font-weight: 500; }
+  .row-positive { color: var(--teal); }
+  .row-negative { color: #A32D2D; }
+
+  /* Tabs */
+  .tab-nav { display: flex; gap: 4px; margin-bottom: 1rem; }
+  .tab-btn { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; padding: 5px 14px; border: 0.5px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--bg); color: var(--text-muted); cursor: pointer; }
+  .tab-btn.active { background: var(--bg-secondary); color: var(--text); font-weight: 500; }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* Note */
+  .note { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; color: var(--text-muted); background: var(--bg-secondary); border-radius: var(--radius-sm); padding: 10px 14px; margin-top: 10px; line-height: 1.65; border-left: 3px solid var(--border-strong); }
+
+  /* Steps */
+  .steps { display: flex; flex-direction: column; gap: 8px; }
+  .step { border-left: 3px solid; padding: 10px 14px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+  .step-title { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; font-weight: 500; margin-bottom: 3px; }
+  .step-desc { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; line-height: 1.6; }
+
+  /* Waterfall tier */
+  .tier { display: flex; align-items: baseline; gap: 10px; padding: 8px 0; border-bottom: 0.5px solid var(--border); font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; }
+  .tier:last-child { border-bottom: none; }
+  .tier-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+  .tier-label { flex: 1; color: var(--text-muted); }
+  .tier-val { font-weight: 500; min-width: 110px; text-align: right; }
+  .tier-pct { font-size: 11px; color: var(--text-hint); min-width: 36px; text-align: right; }
+
+  /* Divider */
+  hr { border: none; border-top: 0.5px solid var(--border); margin: 1.25rem 0; }
+
+  /* Chart wrapper */
+  .chart-wrap { position: relative; width: 100%; height: 160px; margin-bottom: 8px; }
+
+  /* Legend */
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .legend-swatch { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  /* Scenario toggle */
+  .scenario-toggle { display: flex; gap: 8px; margin-bottom: 1rem; }
+  .scen-btn { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; padding: 5px 14px; border: 0.5px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--bg); color: var(--text-muted); cursor: pointer; }
+  .scen-btn.active { background: #1C2B22; color: #fff; border-color: #1C2B22; }
+
+  /* Footer */
+  .footer { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 11px; color: var(--text-hint); text-align: center; margin-top: 2rem; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <p class="header-eyebrow">Confidential — wholesale investor offer</p>
+    <h1>85 Picton Avenue, Riccarton</h1>
+    <p class="header-sub">Proposed limited partnership syndicate — commercial office building, Christchurch</p>
+    <div class="header-tags">
+      <span class="htag">864m² NLA</span>
+      <span class="htag">3 tenants</span>
+      <span class="htag">73% NBS</span>
+      <span class="htag">Town Centre zoning</span>
+      <span class="htag">23 car parks</span>
+      <span class="htag">Freehold 1,349m²</span>
+    </div>
+  </div>
+
+  <!-- Deal metrics -->
+  <div class="section">
+    <p class="section-title">Deal snapshot</p>
+    <div class="metric-grid">
+      <div class="metric">
+        <p class="metric-label">Purchase price</p>
+        <p class="metric-val">$1.75M</p>
+        <p class="metric-note">CV $2.46M — 29% below</p>
+      </div>
+      <div class="metric">
+        <p class="metric-label">All-in cost</p>
+        <p class="metric-val">$1.915M</p>
+        <p class="metric-note">Incl. $165k capex</p>
+      </div>
+      <div class="metric">
+        <p class="metric-label">Equity to raise</p>
+        <p class="metric-val">$612k</p>
+        <p class="metric-note">35% LTC deposit</p>
+      </div>
+      <div class="metric">
+        <p class="metric-label">Current net income</p>
+        <p class="metric-val">$124k/yr</p>
+        <p class="metric-note">7.1% yield on price</p>
+      </div>
+      <div class="metric">
+        <p class="metric-label">Stabilised net income</p>
+        <p class="metric-val">$185k/yr</p>
+        <p class="metric-note">From Jan 2027 (Arise HOA)</p>
+      </div>
+      <div class="metric">
+        <p class="metric-label">Projected exit</p>
+        <p class="metric-val">$2.64M</p>
+        <p class="metric-note">7% cap rate on $185k</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Structure options -->
+  <div class="section">
+    <p class="section-title">How to structure this as a fund</p>
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="showTab('lp', this)">NZ Limited Partnership</button>
+      <button class="tab-btn" onclick="showTab('pie', this)">LP + PIE wrapper</button>
+      <button class="tab-btn" onclick="showTab('wholesale', this)">Wholesale syndicate rules</button>
+    </div>
+
+    <div id="tab-lp" class="tab-pane active">
+      <div class="row"><span class="row-label">Legal entity</span><span class="row-val">NZ Limited Partnership (NZLP)</span></div>
+      <div class="row"><span class="row-label">General partner</span><span class="row-val">You and partner via GP trustee company</span></div>
+      <div class="row"><span class="row-label">Limited partners</span><span class="row-val">Fund investors — passive, limited liability</span></div>
+      <div class="row"><span class="row-label">FMA licensing</span><span class="row-val">Not required for wholesale-only offer</span></div>
+      <div class="row"><span class="row-label">Minimum investment</span><span class="row-val">$50,000 per LP unit (suggested)</span></div>
+      <div class="row"><span class="row-label">Tax treatment</span><span class="row-val">Pass-through — LP entity is not a taxpayer</span></div>
+      <div class="row"><span class="row-label">Capital gains on exit</span><span class="row-val">Tax-free (commercial property, income purpose)</span></div>
+      <div class="row"><span class="row-label">Setup timeline</span><span class="row-val">2–4 weeks via Companies Office</span></div>
+      <div class="row"><span class="row-label">Legal cost estimate</span><span class="row-val">$8,000–$15,000 (LP agreement + IM)</span></div>
+      <p class="note">This is the recommended structure. An NZLP is tax-transparent — each LP partner pays tax on their share of income at their own marginal rate. The GP manages the asset and earns fees and a promote. This is precisely how Mackersy Property, First Light Capital, and most NZ commercial property syndicates operate for wholesale investors. You can close within your timeline using a conditional S&amp;P and an Information Memorandum instead of a full PDS.</p>
+    </div>
+
+    <div id="tab-pie" class="tab-pane">
+      <div class="row"><span class="row-label">Legal entity</span><span class="row-val">LP structured as multi-rate PIE</span></div>
+      <div class="row"><span class="row-label">Tax rate cap</span><span class="row-val">Maximum 28% PIR (vs 33–39% personal rates)</span></div>
+      <div class="row"><span class="row-label">Who benefits most</span><span class="row-val">Investors on 33% or 39% marginal rate</span></div>
+      <div class="row"><span class="row-label">Capital gains</span><span class="row-val">Tax-free on commercial property (same as LP)</span></div>
+      <div class="row"><span class="row-label">Complexity vs plain LP</span><span class="row-val">Higher — PIR elections, IRD registration, periodic filing</span></div>
+      <div class="row"><span class="row-label">FMA licensing</span><span class="row-val">Required if any retail investors admitted</span></div>
+      <div class="row"><span class="row-label">Setup timeline</span><span class="row-val">8–16 weeks</span></div>
+      <p class="note">Worth considering if your investor base includes high-income individuals who would otherwise pay 39% on distributions. For a $185k net income fund across 6 investors, capping tax at 28% vs 39% is a meaningful saving. However the setup time likely conflicts with a deal that needs to close imminently. Recommended for a subsequent multi-asset fund once this deal is operational.</p>
+    </div>
+
+    <div id="tab-wholesale" class="tab-pane">
+      <div class="row"><span class="row-label">Offer type</span><span class="row-val">Wholesale / eligible investor offer (FMCA 2013)</span></div>
+      <div class="row"><span class="row-label">Qualifying threshold</span><span class="row-val">$1M investment portfolio OR $5M net assets OR professional</span></div>
+      <div class="row"><span class="row-label">Investor certificate</span><span class="row-val">Signed by investor + countersigned by FA, CA or solicitor</span></div>
+      <div class="row"><span class="row-label">Disclosure document</span><span class="row-val">Information Memorandum — not a PDS, no Disclose Register</span></div>
+      <div class="row"><span class="row-label">FMA licence</span><span class="row-val">Not required for wholesale-only offers</span></div>
+      <div class="row"><span class="row-label">Advertising</span><span class="row-val">No public advertising permitted (FMA enforcement risk)</span></div>
+      <div class="row"><span class="row-label">AML/CFT</span><span class="row-val">Required — verify identity and source of wealth per investor</span></div>
+      <p class="note">This is the practical legal path for a deal on a short timeline. Approach your network of wholesale-qualified investors directly and privately. Do not use social media or public channels — the FMA has issued formal warnings to operators who did. All investors must sign a wholesale certificate countersigned by a qualified professional before funds are accepted.</p>
+    </div>
+  </div>
+
+  <!-- Capital stack -->
+  <div class="section">
+    <p class="section-title">Proposed capital stack — $1.915M all-in</p>
+    <div class="chart-wrap">
+      <canvas id="stackChart" role="img" aria-label="Stacked bar chart showing the full capital stack: $1.137M bank debt, $122k GP equity, $490k LP equity">Bank debt $1.137M, GP co-invest $122k, LP equity $490k.</canvas>
+    </div>
+    <div class="legend">
+      <span class="legend-item"><span class="legend-swatch" style="background:#444441;"></span>Bank debt — $1,137,500 (59%)</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#0F6E56;"></span>GP co-invest — $122,500 (6%)</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#378ADD;"></span>Preferred LP — $245,000 (13%)</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#97C459;"></span>Common LP — $245,000 (13%)</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#EF9F27;"></span>Capex reserve — $165,000 (9%)</span>
+    </div>
+    <p class="note" style="margin-top:12px;">GP co-invest of 20% of the equity raise signals alignment to investors — the GP has skin in the game. Splitting LP equity between a preferred and common class lets you offer an 8% preferred return to investors who want a safer profile, while common LP holders get higher upside on exit. Both classes are LP investors with limited liability.</p>
+  </div>
+
+  <!-- Waterfall -->
+  <div class="section">
+    <p class="section-title">Return waterfall — exit at stabilised value (Jan–Mar 2027)</p>
+
+    <div class="scenario-toggle">
+      <button class="scen-btn active" onclick="showScenario('base', this)">Base case (7% cap rate)</button>
+      <button class="scen-btn" onclick="showScenario('upside', this)">Upside (6.5% cap rate)</button>
+      <button class="scen-btn" onclick="showScenario('downside', this)">Downside (hold, no Arise)</button>
+    </div>
+
+    <div id="scen-base">
+      <div class="tier"><div class="tier-dot" style="background:#888780;"></div><span class="tier-label">Gross sale proceeds at 7% cap rate</span><span class="tier-val">$2,644,500</span><span class="tier-pct"></span></div>
+      <div class="tier"><div class="tier-dot" style="background:#888780;"></div><span class="tier-label">Less loan repayment</span><span class="tier-val" style="color:#A32D2D;">−$1,137,500</span><span class="tier-pct"></span></div>
+      <div class="tier"><div class="tier-dot" style="background:#888780;"></div><span class="tier-label">Less selling costs + capex + holding (~18 months)</span><span class="tier-val" style="color:#A32D2D;">−$316,113</span><span class="tier-pct"></span></div>
+      <div class="tier" style="border-top: 1px solid #ccc; margin-top:4px; padding-top:10px;"><div class="tier-dot" style="background:#0F6E56;"></div><span class="tier-label" style="font-weight:500;">Net distributable profit</span><span class="tier-val row-positive">$1,190,887</span><span class="tier-pct"></span></div>
+      <hr>
+      <div class="tier"><div class="tier-dot" style="background:#378ADD;"></div><span class="tier-label">Tier 1 — preferred LP return (8% p.a. on $490k × ~1.5yr)</span><span class="tier-val">$58,800</span><span class="tier-pct">4.9%</span></div>
+      <div class="tier"><div class="tier-dot" style="background:#378ADD;"></div><span class="tier-label">Tier 2 — return of all LP capital ($490k)</span><span class="tier-val">$490,000</span><span class="tier-pct">41.1%</span></div>
+      <div class="tier"><div class="tier-dot" style="background:#0F6E56;"></div><span class="tier-label">Tier 3 — GP catch-up to 20% promote on residual</span><span class="tier-val">$160,522</span><span class="tier-pct">13.5%</span></div>
+      <div class="tier"><div class="tier-dot" style="background:#97C459;"></div><span class="tier-label">Tier 4 — residual split: 80% LP / 20% GP</span><span class="tier-val">$481,565</span><span class="tier-pct">40.5%</span></div>
+    </div>
+
+    <div id="scen-upside" style="display:none;">
+      <div class="tier"><div class="tier-dot" style="background:#888780;"></div><span class="tier-label">Gross sale proceeds at 6.5% cap rate</span><span class="tier-val">$2,848,000</span><span class="tier-pct"></span></div>
+      <div class="tier"><div class="tier-dot" style="background:#888780;"></div><span class="tier-label">Less loan repayment</span><span class="tier-val" style="color:#A32D2D;">−$1,137,500</span><span class="tier-pct"></span></div>
+      <div class="tier"><div class="tier-dot" style="background:#888780;"></div><span class="tier-label">Less selling costs + capex + holding</span><span class="tier-val" style="color:#A32D2D;">−$323,613</span><span class="tier-pct"></span></div>
+      <div class="tier" style="border-top:1px solid #ccc; margin-top:4px; padding-top:10px;"><div class="tier-dot" style="background:#0F6E56;"></div><span class="tier-label" style="font-weight:500;">Net distributable profit</span><span class="tier-val row-positive">$1,386,887</span><span class="tier-pct"></span></div>
+      <hr>
+      <p class="note">At a 6.5% cap rate (achievable in a tightening Christchurch market), total LP distributions increase materially. Each $50k LP unit would receive approximately $97k on exit — a 94% return before tax in under 18 months.</p>
+    </div>
+
+    <div id="scen-downside" style="display:none;">
+      <div class="tier"><div class="tier-dot" style="background:#888780;"></div><span class="tier-label">Net income on existing leases (Arise does not renegotiate)</span><span class="tier-val">$124,000/yr</span><span class="tier-pct"></span></div>
+      <div class="tier"><div class="tier-dot" style="background:#888780;"></div><span class="tier-label">Yield on purchase price</span><span class="tier-val">7.1% net</span><span class="tier-pct"></span></div>
+      <div class="tier"><div class="tier-dot" style="background:#888780;"></div><span class="tier-label">Implied property value at 7% cap rate</span><span class="tier-val">$1,771,000</span><span class="tier-pct"></span></div>
+      <div class="tier"><div class="tier-dot" style="background:#0F6E56;"></div><span class="tier-label">LP preferred distributions still paid from rental income</span><span class="tier-val row-positive">Yes — ~8% p.a.</span><span class="tier-pct"></span></div>
+      <div class="tier"><div class="tier-dot" style="background:#0F6E56;"></div><span class="tier-label">LP capital at risk (property value vs debt)</span><span class="tier-val row-positive">Not at risk</span><span class="tier-pct"></span></div>
+      <p class="note">Even in the worst case the property yields above the cost of debt and LP investors still receive preferred return distributions from rental income. Capital is protected unless values fall sharply. Freehold land in a Town Centre zone with 23 car parks provides a meaningful floor. The GP can elect to hold and re-market Arise's space if they vacate.</p>
+    </div>
+  </div>
+
+  <!-- GP economics -->
+  <div class="section">
+    <p class="section-title">GP economics — the sponsor return</p>
+    <div class="row"><span class="row-label">GP co-invest (20% of equity, 20% of LP distributions)</span><span class="row-val">$122,500 in</span></div>
+    <div class="row"><span class="row-label">Acquisition fee (1.5% of purchase price, at settlement)</span><span class="row-val">~$26,250 at close</span></div>
+    <div class="row"><span class="row-label">Asset management fee (1% of equity raised per annum)</span><span class="row-val">~$6,125/yr</span></div>
+    <div class="row"><span class="row-label">GP promote — 20% of profits above preferred return (Tier 3 + 4)</span><span class="row-val">~$162,000–$200,000 at exit</span></div>
+    <div class="row" style="border-top: 1px solid #ccc; margin-top:4px; padding-top:10px;"><span class="row-label" style="font-weight:500;">Estimated total GP return (base case)</span><span class="row-val row-positive">~$340,000+</span></div>
+    <p class="note">Fee structures above are market-standard in the NZ wholesale syndicate market (per Mackersy Property, First Light Capital norms). All fees must be fully disclosed in the Information Memorandum. Consider reducing the promote to 15% if you want an easier investor conversation for a first-time fund. The acquisition fee compensates for deal sourcing and can be split between both founding partners.</p>
+  </div>
+
+  <!-- Investor economics -->
+  <div class="section">
+    <p class="section-title">LP investor economics — illustrative $50k unit</p>
+    <div class="metric-grid">
+      <div class="metric">
+        <p class="metric-label">Units available</p>
+        <p class="metric-val">~12</p>
+        <p class="metric-note">$612k ÷ $50k per unit</p>
+      </div>
+      <div class="metric">
+        <p class="metric-label">Annual distribution</p>
+        <p class="metric-val">~$10.3k</p>
+        <p class="metric-note">Pro-rata $124k current income</p>
+      </div>
+      <div class="metric">
+        <p class="metric-label">Stabilised distribution</p>
+        <p class="metric-val">~$15.4k</p>
+        <p class="metric-note">From Jan 2027 on $185k</p>
+      </div>
+      <div class="metric">
+        <p class="metric-label">Exit proceeds per unit</p>
+        <p class="metric-val">~$80k</p>
+        <p class="metric-note">Capital return + profit share</p>
+      </div>
+      <div class="metric">
+        <p class="metric-label">Total cash-on-cash</p>
+        <p class="metric-val">~60–70%</p>
+        <p class="metric-note">After GP promote, base case</p>
+      </div>
+      <div class="metric">
+        <p class="metric-label">Preferred return</p>
+        <p class="metric-val">8% p.a.</p>
+        <p class="metric-note">Paid before any GP promote</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Next steps -->
+  <div class="section">
+    <p class="section-title">Recommended pathway — given the deadline</p>
+    <div class="steps">
+      <div class="step" style="border-color:#0F6E56; background:#E1F5EE;">
+        <p class="step-title" style="color:#085041;">1. Sign a conditional S&amp;P today</p>
+        <p class="step-desc" style="color:#0F6E56;">Include a 30-day due diligence condition and a finance condition. This secures the deal without needing LP capital committed yet. A conditional agreement is standard and protects you while you raise equity.</p>
+      </div>
+      <div class="step" style="border-color:#185FA5; background:#E6F1FB;">
+        <p class="step-title" style="color:#0C447C;">2. Engage a commercial solicitor this week</p>
+        <p class="step-desc" style="color:#185FA5;">Brief them on the NZLP structure. They will draft the LP Agreement, GP entity documents, and Information Memorandum. Budget $8,000–$15,000. Also confirm the Arise heads of agreement is properly documented.</p>
+      </div>
+      <div class="step" style="border-color:#BA7517; background:#FAEEDA;">
+        <p class="step-title" style="color:#633806;">3. Approach 6–10 wholesale-qualified investors privately</p>
+        <p class="step-desc" style="color:#854F0B;">Target individuals who qualify as wholesale investors under the FMCA. No public advertising. Circulate the IM directly. Aim to have commitments in hand before going unconditional on the S&amp;P. $50k–$100k per LP unit is the right range for this deal size.</p>
+      </div>
+      <div class="step" style="border-color:#993C1D; background:#FAECE7;">
+        <p class="step-title" style="color:#4A1B0C;">4. Complete AML/CFT and register the LP</p>
+        <p class="step-desc" style="color:#993C1D;">Every investor must be verified under the AML/CFT Act 2009 — identity, address and source of wealth. File the LP with the Companies Office. This runs in parallel with the equity raise. Do not accept funds before verification is complete.</p>
+      </div>
+      <div class="step" style="border-color:#534AB7; background:#EEEDFE;">
+        <p class="step-title" style="color:#26215C;">5. Settle and begin asset management</p>
+        <p class="step-desc" style="color:#534AB7;">Arrange the bank loan (LTC facility at 35% equity), execute the LP capital calls, settle the purchase. Begin roof and refurbishment capex. Negotiate the Arise net lease HOA into a formal agreement within the first 60 days of ownership.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key risks -->
+  <div class="section">
+    <p class="section-title">Key risks to disclose in the IM</p>
+    <div class="row"><span class="row-label">Arise new lease risk</span><span class="row-val">HOA in place — contractual comfort but not a signed lease</span></div>
+    <div class="row"><span class="row-label">Vacancy risk</span><span class="row-val">Low at settlement — all tenants current; 417m² at risk Jan 2027</span></div>
+    <div class="row"><span class="row-label">Interest rate risk</span><span class="row-val">Floating rate on $1.137M — consider fixing 12–18 months</span></div>
+    <div class="row"><span class="row-label">Liquidity risk</span><span class="row-val">LP units have no secondary market — investors locked until exit or wind-up</span></div>
+    <div class="row"><span class="row-label">Capex overrun</span><span class="row-val">Roof + refurb estimated $165k — obtain fixed-price quotes before settlement</span></div>
+    <div class="row"><span class="row-label">Exit market risk</span><span class="row-val">Cap rate compression not guaranteed — 7% is market rate in current cycle</span></div>
+    <div class="row"><span class="row-label">Seismic</span><span class="row-val">73% NBS — above lender threshold, but below the 100% comfort of new-build</span></div>
+  </div>
+
+  <div class="footer">
+    This document is for discussion purposes only and does not constitute financial or legal advice. Seek independent legal and financial advice before making any investment decisions. Prepared for wholesale investors only under the Financial Markets Conduct Act 2013.
+  </div>
+
+</div>
+
+<script>
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function showScenario(id, btn) {
+  document.querySelectorAll('[id^="scen-"]').forEach(p => p.style.display = 'none');
+  document.querySelectorAll('.scen-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('scen-' + id).style.display = 'block';
+  btn.classList.add('active');
+}
+
+new Chart(document.getElementById('stackChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Capital structure'],
+    datasets: [
+      { label: 'Bank debt', data: [1137500], backgroundColor: '#444441' },
+      { label: 'GP co-invest', data: [122500], backgroundColor: '#0F6E56' },
+      { label: 'Preferred LP equity', data: [245000], backgroundColor: '#378ADD' },
+      { label: 'Common LP equity', data: [245000], backgroundColor: '#97C459' },
+      { label: 'Capex reserve', data: [165000], backgroundColor: '#EF9F27' }
+    ]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: { stacked: true, grid: { color: 'rgba(128,128,128,0.08)' }, ticks: { callback: v => '$' + (v/1000000).toFixed(1) + 'M', font: { size: 11 } } },
+      y: { stacked: true, display: false }
+    },
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': $' + ctx.raw.toLocaleString() } } }
+  }
+});
+</script>
+</body>
+</html>
